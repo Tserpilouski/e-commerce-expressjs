@@ -12,6 +12,11 @@ router.get(
     query('filter').isString().notEmpty().isLength({ min: 3, max: 10 }).withMessage('It must be betwen 3 and 10 symbols'),
     (req, res) => {
         const result = validationResult(req);
+
+        if (!result.isEmpty()) {
+            return res.status(400).send({ errors: result.array() });
+        }
+
         const { filter, value } = req.query;
 
         if (filter && value) {
@@ -28,9 +33,9 @@ router.get('/users/:id', (req, res) => {
     if (isNaN(parsedId)) {
         return res.status(404).send({ msg: 'Bad id for request' });
     }
-    const findUser = users.find((user) => user.id == req.params.id);
+    const findUser = users.find((user) => user.id === req.params.id);
 
-    if (!findUser) return response.sendStatus(404);
+    if (!findUser) return res.sendStatus(404);
     return res.status(200).send(findUser);
 });
 
@@ -59,6 +64,7 @@ router.put('/users/:id', resolveIndexByUserId, (req, res) => {
 
 // PATCH /users/:id - Update user instance by id
 router.patch('/users/:id', resolveIndexByUserId, (req, res) => {
+    const { body, findUserIndex } = req;
     users[findUserIndex] = { ...users[findUserIndex], ...body };
     return res.sendStatus(200);
 });
