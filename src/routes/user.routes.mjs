@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { query, validationResult, checkSchema, matchedData } from 'express-validator';
+import { validationResult, checkSchema, matchedData } from 'express-validator';
 import { users } from '../utils/constants.mjs';
 import { createUserValSchema } from '../validations/usersValidation.mjs';
 import resolveIndexByUserId from '../middlewares/userIdHandler.mjs';
@@ -9,8 +9,19 @@ const router = Router();
 // GET /users - Get all users or filter users by query parameters
 router.get(
     '/users',
-    query('filter').isString().notEmpty().isLength({ min: 3, max: 10 }).withMessage('It must be betwen 3 and 10 symbols'),
+    // query('filter').isString().notEmpty().isLength({ min: 3, max: 10 }).withMessage('It must be betwen 3 and 10 symbols'),
     (req, res) => {
+        // sesion
+        console.log(req.session.id);
+        req.sessionStore.get(req.session.id, (err, sessionData) => {
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+            console.log(sessionData);
+        });
+
+        //endpoint
         const result = validationResult(req);
 
         if (!result.isEmpty()) {
@@ -57,7 +68,6 @@ router.post('/users', checkSchema(createUserValSchema), (req, res) => {
 // PUT /users/:id - Update user instance by id
 router.put('/users/:id', resolveIndexByUserId, (req, res) => {
     const { body, findUserIndex } = req;
-
     users[findUserIndex] = { id: findUserIndex, ...body };
     return res.sendStatus(200);
 });

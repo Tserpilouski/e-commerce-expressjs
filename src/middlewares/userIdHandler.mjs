@@ -1,3 +1,5 @@
+import { users } from '../utils/constants.mjs';
+
 const resolveIndexByUserId = (req, res, next) => {
     const {
         params: { id },
