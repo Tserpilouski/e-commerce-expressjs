@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 
 mongoose
-    .connect('mongodb://root:password1234@localhost:27017')
+    .connect('mongodb://root:password1234@localhost:27017/expressdb?authSource=admin')
     .then(() => console.log('Connect to DB id Done!'))
     .catch((error) => console.log('Error:', error));
 

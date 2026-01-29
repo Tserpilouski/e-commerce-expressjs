@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { validationResult, checkSchema, matchedData } from 'express-validator';
+import { validationResult } from 'express-validator';
 import { users } from '../utils/constants.mjs';
-import { createUserValSchema } from '../validations/usersValidation.mjs';
 import resolveIndexByUserId from '../middlewares/userIdHandler.mjs';
+import { User } from '../mongoose/schemas/user.mjs';
 
 const router = Router();
 
@@ -51,18 +51,16 @@ router.get('/users/:id', (req, res) => {
 });
 
 // POST /users - Create a new user
-router.post('/users', checkSchema(createUserValSchema), (req, res) => {
-    const result = validationResult(req);
-
-    if (!result.isEmpty()) {
-        return res.status(400).send({ errors: result.array() });
+router.post('/users', async (req, res) => {
+    const { body } = req;
+    const newUser = new User(body);
+    try {
+        const savedUser = await newUser.save();
+        return res.status(201).send(savedUser);
+    } catch (err) {
+        console.log(err);
+        return res.status(400);
     }
-
-    const data = matchedData(req);
-
-    const newUser = { id: users[users.length - 1].id + 1, ...data };
-    users.push(newUser);
-    return res.send(201);
 });
 
 // PUT /users/:id - Update user instance by id
